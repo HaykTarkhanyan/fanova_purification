@@ -23,7 +23,7 @@
 }
 
 \title[Purifying Interaction Effects]{Purifying Interaction Effects with Functional ANOVA:\\Paper Walkthrough + Two Experiments}
-\author{Aik Tarkhanyan}
+\author{Aik Tarkhanyan (LMU, Munich)}
 \date{}
 
 % ---------- Convenience macros ----------
@@ -362,6 +362,35 @@ This is exactly the fANOVA decomposition with $w(X) = p(X)$ (true data density).
 \end{alertblock}
 
 \TakeawayBox{Pure = irreducible. If $f_{ij}$ can be absorbed into $f_i$ or $f_j$, it's not a ``pure'' interaction.}
+\end{frame}
+
+% ============================================================
+\begin{frame}{Tree Splits $\to$ Bins}
+\centering
+\begin{tikzpicture}[scale=1.1]
+  % Axis
+  \draw[->,thick] (0,0) -- (5.5,0) node[right,font=\small] {$X_1$};
+  \draw[->,thick] (0,0) -- (0,2.2) node[above,font=\small] {density};
+  
+  % Data points (scattered)
+  \foreach \x in {0.3,0.5,0.7,1.1,1.3,1.6,2.1,2.3,2.5,2.6,2.8,3.1,3.4,3.6,4.2,4.5,4.8} {
+    \fill[blue!60] (\x,0) circle (1.5pt);
+  }
+  
+  % Split thresholds
+  \draw[red,thick,dashed] (1.5,0) -- (1.5,2.0) node[above,font=\small] {$t_1$};
+  \draw[red,thick,dashed] (3.0,0) -- (3.0,2.0) node[above,font=\small] {$t_2$};
+  \draw[red,thick,dashed] (4.0,0) -- (4.0,2.0) node[above,font=\small] {$t_3$};
+  
+  % Bin labels
+  \node[font=\small] at (0.75,-0.4) {Bin 1};
+  \node[font=\small] at (2.25,-0.4) {Bin 2};
+  \node[font=\small] at (3.5,-0.4) {Bin 3};
+  \node[font=\small] at (4.5,-0.4) {Bin 4};
+\end{tikzpicture}
+
+\vspace{1em}
+\TakeawayBox{Tree split thresholds define bins; each bin is a region where $F$ is constant.}
 \end{frame}
 
 % ============================================================
@@ -1279,6 +1308,20 @@ The following AI tools were used to support development of this project:
 
 \vspace{1em}
 {\centering All AI-generated content was reviewed, validated, and edited by the author.\par}
+\end{frame}
+
+% ============================================================
+\begin{frame}{}
+\vfill
+\centering
+{\Huge\bfseries Thank You!}
+
+\vspace{1.5em}
+{\Large Questions?}
+
+\vspace{2em}
+{\footnotesize \url{https://github.com/HaykTarkhanyan/fanova_purification}}
+\vfill
 \end{frame}
 
 \end{document}
