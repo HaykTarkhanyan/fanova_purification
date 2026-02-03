@@ -1,0 +1,4 @@
+dataset,task,target,metric_name,metric_value,weight_mode,max_abs_pred_err0,max_abs_pred_err,n_features,n_samples_train
+german_credit,regression,Credit amount,rmse,2043.297071349168,empirical,0.0063491896144114435,0.006349189616230433,28,750
+german_credit,regression,Credit amount,rmse,2043.297071349168,uniform,0.0063491896144114435,0.0063491896144114435,28,750
+german_credit,regression,Credit amount,rmse,2043.297071349168,indep,0.0063491896144114435,0.006349189616230433,28,750
