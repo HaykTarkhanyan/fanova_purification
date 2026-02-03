@@ -486,9 +486,64 @@ For tree ensembles, represent effects as tensors $T_u$. \textbf{Idea}: iterative
 
 
 
-\begin{frame}{Example: COMPAS}
+\begin{frame}{Example: COMPAS + Recidivism Datasets}
 \centering
 \includegraphics[width=0.98\linewidth,height=0.78\textheight,keepaspectratio]{figures_manual/compas_example.png}
+\end{frame}
+
+% ============================================================
+\begin{frame}{COMPAS Dataset}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{figures_manual/compass.png}
+\end{column}
+\begin{column}{0.48\textwidth}
+\footnotesize
+\textbf{What is COMPAS?}
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item Predicts recidivism risk for bail decisions
+  \item High stakes $\rightarrow$ fair treatment crucial
+\end{itemize}
+
+\vspace{0.3em}
+\textbf{Key Insights:}
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item Main effects \textbf{change significantly} after purification
+  \item Magnitude and \textbf{sign} depend on weight choice
+  \item XGB signs often \textbf{opposite} to purified models
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{Recidivism Dataset}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{figures_manual/recidivism.png}
+\end{column}
+\begin{column}{0.48\textwidth}
+\footnotesize
+\textbf{Background:}
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item Propublica 2016: Broward County, FL
+  \item Includes COMPAS predictions
+\end{itemize}
+
+\vspace{0.3em}
+\textbf{Why It Matters:}
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item Sparked algorithmic bias controversy
+  \item Conflicting conclusions across studies
+\end{itemize}
+
+\vspace{0.3em}
+\textbf{Research Question:}\\[2pt]
+Does purification change bias conclusions?
+\end{column}
+\end{columns}
 \end{frame}
 
 % ============================================================
@@ -510,7 +565,8 @@ For many simple weights (e.g., uniform along row/column dimensions), purificatio
 
 \vspace{0.4em}
 	\begin{block}{Theorem 2 (generic non-degenerate $w$)}
-	Converges to tolerance $\varepsilon$ in $O(\log(M_0)-\log(\varepsilon))$ iterations per interaction tensor.
+	Converges to tolerance $\varepsilon$ in $O(\log(M_0)-\log(\varepsilon))$ iterations per interaction tensor.\\[3pt]
+	{\footnotesize $M_0$ = initial unpurified mass $\sum_{i,j} w_{i,j}(r_i + c_j)$, where $r_i, c_j$ are row/column means.}
 	\end{block}
 	\end{frame}
 
@@ -1014,7 +1070,7 @@ X_2 = \rhoVal X_1 + \sqrt{1-\rhoVal^2}\,\varepsilon,
 \end{frame}
 
 % ============================================================
-\begin{frame}{Stress-test: weighting ablation + metrics}
+\begin{frame}{Stress-test: weighting comparison + metrics}
 \small
 We purify the same tensors under:
 \[
@@ -1029,6 +1085,24 @@ w \in \{\wemp,\; \wunif,\; \windep,\; \wperm\}.
   \item Interaction variance share: $\Varw(f_{12})/\Varw(F)$
 \end{itemize}
 \end{block}
+\end{frame}
+
+% ============================================================
+\begin{frame}{Weight Modes Explained}
+\small
+\begin{tabular}{@{}lp{7.5cm}@{}}
+\toprule
+\textbf{Mode} & \textbf{Definition} \\
+\midrule
+$\wemp$ (empirical) & Observed joint distribution $\hat{p}(x_1,x_2)$ from training data. Captures dependence. \\[4pt]
+$\wunif$ (uniform) & Equal weight $\frac{1}{|\Omega_1|\cdot|\Omega_2|}$ for all bin pairs. Ignores data distribution. \\[4pt]
+$\windep$ (indep) & Product of marginals: $\hat{p}(x_1)\cdot\hat{p}(x_2)$. Assumes independence analytically. \\[4pt]
+$\wperm$ (perm\_joint) & Shuffle columns to break dependence, then compute empirical joint. Independence via resampling. \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+\textbf{Key point:} Under strong feature correlation, these weight choices lead to \textbf{different purified effects}.
 \end{frame}
 
 	% ============================================================
