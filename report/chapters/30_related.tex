@@ -1,0 +1,40 @@
+\chapter{Related Work}\label{chap:related}
+
+\section{Generalized Additive Models and Interpretability}
+
+\Glspl{GAM}, introduced by \citet{hastie1986generalized}, model the response as a sum of univariate functions.
+\citet{lou2012intelligible, lou2013accurate} proposed \glspl{GA2M}, augmenting GAMs with pairwise interaction terms, and Microsoft's \gls{EBM} \citep{nori2019interpretml} brought these to production use.
+More recently, \citet{agarwal2021neural} introduced Neural Additive Models (NAMs), which inherit the additive structure (and thus the identifiability problem).
+\citet{chang2021how} showed that different GAM training algorithms produce substantially different shape functions for the same data---directly analogous to our finding that different weight specifications yield different purified effects.
+
+\section{Functional ANOVA and Sensitivity Analysis}
+
+The \gls{fANOVA} decomposition has roots in global sensitivity analysis.
+\citet{sobol2001global} introduced Sobol' indices based on the orthogonal decomposition of a function under a product measure (assuming independent inputs).
+\citet{hooker2007generalized} extended the framework to dependent variables, showing that the standard decomposition can misattribute interaction variance to main effects and vice versa when features are correlated---the phenomenon our experiments quantify.
+
+\section{Feature Interactions and Their Detection}
+
+\citet{friedman2008predictive} proposed the H-statistic for measuring interaction strength, conceptually related to the interaction variance share we compute after purification.
+\citet{lundberg2017unified} introduced \gls{SHAP} interaction values, which decompose pairwise effects at the individual prediction level rather than as global shape functions, making them complementary to purification.
+\citet{hooker2021unrestricted} and \citet{strobl2008conditional} showed that permutation-based importance measures are unreliable when features are dependent---paralleling our finding that the weighting distribution $w$ plays an analogous role to the reference distribution.
+
+\section{Partial Dependence and Accumulated Local Effects}
+
+\citet{friedman2001greedy} introduced partial dependence plots (PDPs), which implicitly assume feature independence and can mislead when features are correlated.
+\citet{apley2020visualizing} developed accumulated local effects (ALE) plots as an alternative that avoids extrapolation by restricting attention to observed feature combinations.
+Both face the same marginal-vs-conditional tension that our work addresses through weight specification.
+
+\section{Purification and Identifiability}
+
+\citet{lengerich2020purifying} identified the non-identifiability of additive-with-interaction models and proposed the mass-moving purification algorithm.
+They proved convergence guarantees and demonstrated the algorithm on COMPAS, pneumonia risk, and recidivism datasets, showing that purification qualitatively changes which features appear important and how interactions are attributed.
+
+However, their analysis focused on comparing purified versus unpurified effects, rather than studying sensitivity to the weighting distribution $w$.
+This gap---understanding how much purified effects change when $w$ is varied---is the primary contribution of our work.
+
+\section{Algorithmic Fairness and the German Credit Dataset}
+
+The German Credit dataset \citep{dua2019uci} is a standard benchmark in fair lending research, containing sensitive attributes such as age and sex.
+The COMPAS recidivism system \citep{angwin2016machine} highlighted how model interpretations can have profound societal consequences, with debates centering on how ``bias'' is measured and attributed.
+The purification algorithm is directly relevant: by choosing different weighting distributions, a practitioner could shift variance between main effects involving sensitive attributes and their interactions, raising questions about the trustworthiness of purification-based audits (\cref{sec:ethical}).

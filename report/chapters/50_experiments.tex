@@ -1,0 +1,89 @@
+\chapter{Experiments}\label{chap:experiments}
+
+We conduct two experiments to investigate the sensitivity of purified effects to the weighting distribution.
+Both share the same pipeline: fit a depth-2 XGBoost \citep{chen2016xgboost} model, decompose it into tensors, and purify under multiple weight specifications.
+
+\section{Experimental Setup}\label{sec:experimental-setup}
+
+All experiments are implemented in Python~3.10+ using NumPy, pandas, scikit-learn, XGBoost, and Matplotlib.
+The purification algorithm and XGBoost decomposition are implemented from scratch as the \texttt{purify\_fanova} library (source code at \url{https://github.com/HaykTarkhanyan/fanova_purification}).
+
+We use purification tolerance $\varepsilon = 10^{-10}$ and XGBoost with \texttt{max\_depth=2}, \texttt{learning\_rate=0.1}, no L2 regularization, and full subsampling.
+The depth-2 constraint ensures exact decomposition into main effects and pairwise interactions (\cref{sec:xgb-decompose}).
+Prediction invariance is verified in every run.
+
+\section{Experiment 1: German Credit Dataset}\label{sec:exp-german}
+
+\subsection{Data}
+
+We use the German Credit dataset \citep{dua2019uci}: 1000 samples, 20 features describing loan applicants.
+We predict \texttt{Credit amount} as a regression target.
+Categorical features are one-hot encoded (yielding 28 inputs), with a 75\%/25\% train/test split.
+
+\subsection{Model}
+
+We train an XGBoost regressor with 120 trees, \texttt{max\_depth=2}, and \texttt{learning\_rate=0.1} (full hyperparameters in \cref{tab:xgb-params}).
+
+\subsection{Purification Modes}
+
+The same trained model is purified under three weighting distributions:
+\begin{itemize}
+    \item $\wemp$: empirical joint distribution from training data.
+    \item $\wunif$: uniform weights over all bin combinations.
+    \item $\windep$: product of empirical marginals ($\windep(b_i, b_j) = \hat{p}(b_i) \cdot \hat{p}(b_j)$).
+\end{itemize}
+
+\subsection{Evaluation}
+
+We report test \gls{RMSE} (identical across modes, confirming prediction invariance), top effects ranked by variance, and visual comparison of main effect curves and interaction heatmaps.
+
+\section{Experiment 2: Synthetic Stress-Test Under Controlled Dependence}\label{sec:exp-stress}
+
+\subsection{Motivation}
+
+The German Credit experiment demonstrates weight sensitivity on real data but does not allow systematic control of feature dependence.
+The stress-test generates bivariate data with known dependence and ground-truth interactions.
+
+\subsection{Data Generation}
+
+We generate bivariate data with controlled linear-Gaussian dependence:
+\begin{align}
+    X_1 &\sim \mathcal{N}(0, 1), \qquad \varepsilon \sim \mathcal{N}(0, 1) \text{ independent}, \\
+    X_2 &= \rhoVal \cdot X_1 + \sqrt{1 - \rhoVal^2} \cdot \varepsilon,
+\end{align}
+where $\rhoVal \in \{0.0, 0.3, 0.6, 0.9, 0.97\}$.
+By construction, $\text{Corr}(X_1, X_2) = \rhoVal$ with unit marginal variances.
+We generate $n = 4000$ samples per setting.
+
+\subsection{Ground-Truth Functions}
+
+\begin{description}
+    \item[F1 (Multiplicative):] $F(X_1, X_2) = X_1 + X_2 + 1.5 \cdot X_1 X_2 + \varepsilon_{\text{noise}}$.
+    Smooth ``saddle'' interaction with well-behaved marginal structure.
+
+    \item[F2 (XOR-like):] $F(X_1, X_2) = 2 \cdot \sign(X_1) \cdot \sign(X_2) + 0.5 X_1 + 0.5 X_2 + \varepsilon_{\text{noise}}$.
+    Sharp checkerboard interaction ($+2$ in quadrants I/III, $-2$ in II/IV), expected to be more sensitive to weight misspecification.
+\end{description}
+Both include Gaussian noise with $\sigma = 0.2$.
+
+\subsection{Model and Purification}
+
+For each ($\rhoVal$, function, random seed) combination, we fit a depth-2 XGBoost regressor with 60 trees and purify under four weight modes: $\wemp$, $\wunif$, $\windep$, and $\wperm$.
+We use 3 random seeds per setting and report means.
+
+\subsection{Metrics}\label{sec:metrics}
+
+All metrics measure divergence from the $\wemp$-purified baseline.
+
+\begin{description}
+    \item[Weighted $L_2$ distance:] Overall surface difference:
+    \[
+        d_{L_2} = \sqrt{\sum_{i,j} w^{\text{emp}}_{ij} \bigl(f^{\text{emp}}_{ij} - f^{\text{other}}_{ij}\bigr)^2}.
+    \]
+
+    \item[Sign flip rate:] Fraction of bins whose sign differs between weight modes (excluding near-zero bins with $|f| < 10^{-12}$).
+    A sign flip is a qualitative reversal in interpretation.
+
+    \item[Interaction variance share:] $\text{IVS} = \Varw(f_{12}) / \Varw(F)$, computed with each mode's own weights.
+    Determines the narrative: ``Is this model dominated by main effects or interactions?''
+\end{description}

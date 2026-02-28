@@ -1,0 +1,38 @@
+\chapter{Introduction}\label{chap:introduction}
+
+\section{Motivation}
+
+Interpretable machine learning models are increasingly deployed in high-stakes domains such as credit scoring, criminal justice, and healthcare, where understanding \emph{why} a model makes a particular prediction is as important as the prediction itself \citep{molnar2022interpretable}.
+\Glspl{GAM} with pairwise interactions---sometimes called \glspl{GA2M}---offer an attractive middle ground between black-box models and simple linear models \citep{lou2013accurate}, decomposing predictions into univariate main effects $f_i(x_i)$ and bivariate interaction surfaces $f_{ij}(x_i, x_j)$.
+
+However, this decomposition is \textbf{not unique}.
+One can add an arbitrary function $h(x_i)$ to the main effect $f_i$ and subtract it from the interaction $f_{ij}$ without changing predictions.
+This \emph{identifiability problem} means the same model can yield contradictory interpretations \citep{lengerich2020purifying}.
+
+\section{Problem}
+
+The identifiability problem has practical consequences.
+In credit scoring, whether a feature's influence is classified as a ``main effect'' or an ``interaction'' affects regulatory explanations.
+In algorithmic fairness, interaction effects between sensitive attributes and other features can change the narrative around model bias \citep{angwin2016machine}.
+
+\citet{lengerich2020purifying} proposed \emph{purification} as a solution: enforce the \gls{fANOVA} integrate-to-zero constraints via an iterative mass-moving algorithm, yielding a canonical decomposition.
+However, the purified decomposition depends on a weighting distribution $w(x)$, and the original paper leaves largely unexplored how sensitive the purified effects are to this choice---particularly when features are dependent.
+
+\section{Approach and Research Questions}
+
+This report reproduces the purification algorithm for piecewise-constant models (depth-2 XGBoost ensembles) and extends it with two experiments probing weight sensitivity:
+
+\begin{enumerate}
+    \item[\textbf{RQ1}] Does the choice of weighting distribution ($\wemp$, $\wunif$, $\windep$) qualitatively change the purified main effects and interactions on a real-world dataset (German Credit)?
+    \item[\textbf{RQ2}] How does the divergence between purified effects under different weight specifications scale with the strength of feature dependence?
+    \item[\textbf{RQ3}] At what level of dependence do misspecified weights produce qualitatively misleading interpretations (sign flips, variance attribution reversals)?
+\end{enumerate}
+
+\section{Outline}
+
+\Cref{chap:background} introduces additive models, the \gls{fANOVA} decomposition, and the integrate-to-zero constraints.
+\Cref{chap:related} reviews related work.
+\Cref{chap:methods} describes the purification algorithm and our XGBoost decomposition.
+\Cref{chap:experiments,chap:results} detail the experimental setup and results.
+\Cref{chap:discussion} interprets the findings, discusses ethical implications, and concludes.
+The source code is publicly available.\footnote{\url{https://github.com/HaykTarkhanyan/fanova_purification}}

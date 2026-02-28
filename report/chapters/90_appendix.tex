@@ -1,0 +1,60 @@
+
+\chapter{Additional Experimental Details}\label{app:details}
+
+\section{XGBoost Hyperparameters}
+
+\Cref{tab:xgb-params} lists the XGBoost hyperparameters used across all experiments.
+The key constraint is \texttt{max\_depth=2}, which ensures that each tree uses at most two features and can be exactly decomposed into main effects and pairwise interactions.
+
+\begin{table}[H]
+\centering
+\small
+\caption{XGBoost hyperparameters used in all experiments.}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Parameter} & \textbf{German Credit} & \textbf{Stress-Test} \\
+\midrule
+\texttt{n\_estimators} & 120 & 60 \\
+\texttt{max\_depth} & 2 & 2 \\
+\texttt{learning\_rate} & 0.1 & 0.1 \\
+\texttt{reg\_lambda} (L2) & 0 & 0 \\
+\texttt{subsample} & 1.0 & 1.0 \\
+\texttt{colsample\_bytree} & 1.0 & 1.0 \\
+\bottomrule
+\end{tabular}
+\label{tab:xgb-params}
+\end{table}
+
+\section{Purification Convergence}
+
+In all experiments, the purification algorithm converges to the specified tolerance ($\varepsilon = 10^{-10}$) within 5--15 sweeps per interaction matrix.
+The majority of mass transfer occurs in the first sweep, consistent with the theoretical convergence guarantees described in \cref{sec:mass-moving}.
+No convergence failures were observed across any experimental run.
+
+\section{Reproducibility}
+
+All experiments are fully reproducible.
+The complete source code, experiment scripts, and result generation pipeline are available at:
+\begin{center}
+\url{https://github.com/HaykTarkhanyan/fanova_purification}
+\end{center}
+
+To reproduce all experiments and generate result files:
+\begin{verbatim}
+pip install -r requirements.txt
+python run_all_experiments.py
+\end{verbatim}
+
+The stress-test experiments use 3 random seeds per $(\rhoVal, \text{function})$ combination, and all results are reported as means over these seeds.
+
+\chapter{Use of AI Tools}\label{app:ai-tools}
+
+In the preparation of this report and the accompanying implementation, AI-assisted tools were used for the following purposes:
+\begin{itemize}
+    \item \textbf{Code development:} AI coding assistants were used to help write and debug Python code, particularly for the XGBoost tree decomposition and plotting utilities.
+    \item \textbf{Writing assistance:} AI tools were used to assist with drafting and editing the text of this report, including structuring arguments, improving clarity, and ensuring consistent notation.
+    \item \textbf{Literature search:} AI tools were used to identify relevant prior work and verify bibliographic details.
+\end{itemize}
+
+All AI-generated content was reviewed, verified, and edited by the author.
+The scientific contributions---the experimental design, the choice of metrics, the interpretation of results, and the critical analysis of ethical concerns---reflect the author's own judgment.

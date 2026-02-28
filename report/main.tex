@@ -21,7 +21,6 @@
 
 \usepackage{scrhack}  % fixes warnings caused by listings package
 \usepackage{setspace}  % for \setstretch
-% TODO: margins
 
 %% language settings
 \usepackage{cmap}  % make copy-paste work
@@ -35,14 +34,17 @@
 
 %% color and graphics
 \usepackage{xcolor}  % for colors. Pass the option "table" to colorize table rows, and "dvipsnames or "svgnames" to use more color names
+\usepackage{tikz}
+\usetikzlibrary{patterns}
 
 %% bibliography
 \usepackage[style = authoryear, backend = biber, natbib = true, minnames=1, maxcitenames=2, maxbibnames=99]{biblatex}
 \addbibresource{bibliography.bib}
 
 %% figures
+\usepackage{float}     % for [H] exact placement specifier
 \usepackage{graphicx}  % for \includegraphics
-\graphicspath{{figures/}}  % set default path for figures
+\graphicspath{{figures/}{../results/}{../slides/figures_manual/}}  % set default path for figures
 \usepackage[caption=false]{subfig}  % for subfigures: \subfloat[Caption]{\includegraphics[...]{...}}
 
 %% tables
@@ -66,9 +68,6 @@
 }
 \usepackage{algpseudocode}  % for pseudocode: \begin{algorithmic} ... \end{algorithmic}
 
-%% acronyms
-%\usepackage[printonlyused]{acronym}
-
 %% math
 \usepackage{amsmath}  % for \DeclareMathOperator, \text, \mathbb, etc.
 \usepackage{amsfonts}  % declares mathematical fonts
@@ -81,17 +80,6 @@
 \usepackage{titling}  % make \theauthor, \thetitle, \thedate available
 \usepackage{xstring}  % for StrCount, so "Supervisor(s)" can be pluralized
 \usepackage{ifthen}
-
-%% todo-notes
-\usepackage[colorinlistoftodos]{todonotes}
-
-%% Headers. Note that scrbook is not compatible with fancyhdr.
-%\usepackage[automark,headsepline,plainheadsepline]{scrlayer-scrpage}
-%\clearpairofpagestyles
-%\ihead{\leftmark}
-%\ohead*{\pagemark}
-%\addtokomafont{pagehead}{\normalfont}
-%\renewcommand\chaptermarkformat{\ifnumbered{chapter}{\chapapp\ \thechapter:\enskip}{}}
 
 %% Make "List of X" (e.g. "List of Figures") conditional on there being any X
 \usepackage{assoccnt}
@@ -112,8 +100,6 @@
 \regtotcounter{algorithm}
 \newtotcounter{totalgorithms}
 \DeclareAssociatedCounters{algorithm}{totalgorithms}
-
-
 
 
 
@@ -155,7 +141,7 @@
 
 \newcommand{\printsupervisors}{
     \StrCount{\supervisor}{\\}[\numberofsupervisors]
-    \textbf{\ifthenelse{\numberofsupervisors > 0}{Supervisors:}{Supervisor:}}
+    \textbf{Supervisor:}
     \hspace*{0.1cm}
     \begin{tabular}[t]{@{}p{9cm}@{}}
         \supervisor
@@ -195,11 +181,9 @@
 
 
         \large
-        A Thesis Submitted in Partial Fulfillment \\ of the Requirements for the Degre of\\
-        \vspace{0.5cm}
         \textit{\thesisdegree}\\
         \vspace{0.5cm}
-        in the Field of \thesisfield
+        \thesisfield
 
         \vspace{0.8cm}
 
@@ -237,12 +221,6 @@
 \fi
 \printglossary[type=\acronymtype,title=List of Acronyms]
 
-% TODO: how to do short captions in the list of figures etc? \caption[shortcap]{longcaaaaap}
-% TODO: glossaries, notation, abbreviations
-%\printglossaries
-%\listofabbreviations
-%\listofnomenclature
-
 % actual content
 \mainmatter
 \include{chapters/10_introduction}
@@ -252,7 +230,6 @@
 \include{chapters/50_experiments}
 \include{chapters/60_results}
 \include{chapters/70_discussion}
-\include{chapters/80_conclusion}
 
 % Bibliography
 \chapter{Bibliography}
@@ -264,27 +241,19 @@
     \renewcommand\chapterformat{Appendix~\thechapter.\enskip}
     \include{chapters/90_appendix}
 \end{appendices}
-% \include{chapters/91_appendix_<name>}
-% \include{chapters/92_appendix_<name>}
-
-%\textcquote{knuth:ct}{This is a quote.}
-%\blockcquote[pages 100--101]{knuth:ct}{This is a quote.}
 
 
 \backmatter
 \cleardoublepage
 \thispagestyle{empty}
-%% "Eigenstaendigkeitserklaerung" / Declaration of Authorship
-%
-% Hiermit versichere ich, dass ich die vorliegende Arbeit selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.
 
 \section*{Declaration of Authorship}
 
-I hereby declare that this thesis is my own work and that I have not used any sources or aids except the ones declared or referenced.
+I hereby declare that this report is my own work and that I have not used any sources or aids except the ones declared or referenced.
 Text passages quoted verbatim or near-verbatim from external sources, as well as figures taken from or based on external sources, are marked as such.
 
 \noindent
-I further declare that this thesis has not been submitted to any other examination board in the same or similar form.
+I further declare that this report has not been submitted to any other examination board in the same or similar form.
 
 \vspace{2cm}
 \begin{center}
@@ -299,4 +268,3 @@ I further declare that this thesis has not been submitted to any other examinati
 \end{tabular}
 \end{center}
 \end{document}
-

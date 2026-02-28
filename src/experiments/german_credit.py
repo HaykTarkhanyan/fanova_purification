@@ -333,10 +333,11 @@ def run(
 
     if not main_df.empty:
         top_k = main_df.head(6)
-        fig, axes = plt.subplots(len(top_k), 1, figsize=(8.5, 2.2 * len(top_k)))
-        if len(top_k) == 1:
-            axes = [axes]
-        for ax, (_, row) in zip(axes, top_k.iterrows()):
+        nrows, ncols = 3, 2
+        fig, axes = plt.subplots(nrows, ncols, figsize=(12, 9))
+        axes_flat = axes.flatten()
+        for idx, (_, row) in enumerate(top_k.iterrows()):
+            ax = axes_flat[idx]
             i = int(row["i"])
             reps = fb[i].reps
             for mode in weight_modes:
@@ -346,6 +347,9 @@ def run(
             ax.set_xlabel("Bin representative")
             ax.set_ylabel("Effect")
             ax.legend()
+        # Hide unused axes if fewer than 6 features
+        for idx in range(len(top_k), nrows * ncols):
+            axes_flat[idx].set_visible(False)
         fig.tight_layout()
         fig.savefig(out_dir / "german_credit_top_mains.pdf")
         plt.close(fig)

@@ -1,0 +1,106 @@
+\chapter{Discussion and Conclusion}\label{chap:discussion}
+
+This chapter interprets the experimental results in the context of our three research questions, discusses broader implications, and outlines future directions.
+
+\section{Answering the Research Questions}
+
+\subsection{RQ1: How Sensitive Are Purified Effects to the Weighting Distribution?}
+
+Sensitivity depends strongly on the nature of the interaction and the degree of feature dependence.
+In the German Credit experiment (\cref{sec:exp-german}), the three weight modes produce identical test RMSE (2043.3) but visibly different main effect curves and interaction heatmaps (\cref{fig:german-mains,fig:german-heatmap}).
+The synthetic stress-test (\cref{sec:exp-stress}) provides sharper evidence: at $\rhoVal = 0.97$, the $L_2$ distance reaches 0.90, the interaction variance share swings from 5.6\% to 73\%, and up to 34\% of bins change sign (\cref{tab:stress-summary}).
+We conclude that purified effects can be \textbf{extremely sensitive} to the weighting distribution when features are dependent and the interaction structure is non-multiplicative.
+
+\subsection{RQ2: Under What Conditions Does Sensitivity Arise?}
+
+Two conditions amplify weight sensitivity:
+
+\paragraph{Feature dependence.}
+When $\rhoVal = 0$, all weight modes converge.
+Divergence increases monotonically with $\rhoVal$ across all metrics (\cref{fig:stress-l2-F1,fig:stress-l2-F2,fig:stress-share-F1,fig:stress-share-F2}).
+This is expected: when features are independent, the integrate-to-zero constraint under $\wemp$ coincides with $\windep$; dependence breaks this coincidence.
+
+\paragraph{Interaction structure.}
+The XOR-like function F2 is far more sensitive than the multiplicative F1 across all metrics (\cref{tab:stress-summary}).
+The multiplicative interaction has smooth marginal structure that absorbs mass gradually, while the XOR-like interaction's sharp non-linearity leads to large disagreements in what counts as ``main effect'' versus ``interaction.''
+For models with discrete or threshold-like interactions (common in tree ensembles on categorical features), weight sensitivity is likely most severe.
+
+\subsection{RQ3: What Are the Practical Implications?}
+
+\begin{enumerate}
+    \item \textbf{Always report the weight specification.} A purified effect plot without specifying $w$ is incomplete.
+    \item \textbf{Compare multiple weight modes.} Agreement signals robustness; disagreement signals entanglement with feature dependence.
+    \item \textbf{Treat large variance share differences as a warning.} An unstable interaction story should not be presented as definitive.
+    \item \textbf{Be cautious with dependent features.} Any single purification result should be interpreted with care when features are strongly correlated.
+\end{enumerate}
+
+\section{Interpretation of Weight Modes}
+
+Each weight mode encodes a different answer to ``what does it mean for an interaction to have zero marginal effect?''
+Under $\wemp$, the constraint is evaluated against the observed data---natural for asking whether an interaction contributes beyond its marginals in the data we observe, but sensitive to dependence artifacts.
+Under $\windep$ (and $\wperm$), the constraint assumes independent features---natural for a causal ``what if we varied each feature independently?'' perspective, but requires evaluating the model on out-of-distribution inputs.
+Under $\wunif$, all bin combinations are treated equally, ignoring the data distribution entirely.
+None is universally correct; the choice depends on the scientific question, which is precisely the problem: the fANOVA does not resolve the interpretive ambiguity---it merely makes it explicit through $w$.
+
+\section{Potential for Misuse and Ethical Concerns}\label{sec:ethical}
+
+The weight sensitivity we have documented creates an opportunity for \emph{explanation shopping}---selectively choosing the weight specification that produces the most favorable narrative.
+
+\subsection{Manipulating Variance Attribution}
+
+The interaction variance share can range from 5.6\% to 73\% for the same model (\cref{tab:stress-summary}).
+A practitioner wanting to downplay an interaction (e.g., between a sensitive attribute and another feature) can choose a weight mode that absorbs interaction variance into the mains, and vice versa.
+In algorithmic fairness, this is particularly concerning: under $\wemp$, a Sex$\times$Duration interaction might appear negligible, while under $\windep$ it might be substantial---neither conclusion is ``wrong,'' but reporting only one is misleading.
+
+\subsection{The German Credit Example}
+
+The interaction \texttt{Sex\_female} $\times$ \texttt{Purpose\_education} has empirical-weight variance $\approx 3{,}015$ (\cref{tab:german-interactions}).
+Under $\wemp$, the weights reflect the observed data (most applicants are male, few apply for education loans), causing marginal structure to be absorbed into the mains---resulting story: \emph{``the model treats sex similarly regardless of loan purpose.''}
+Under $\windep$, the $(1,1)$ cell is re-weighted to $\hat{p}(\text{female}) \cdot \hat{p}(\text{education})$, potentially leaving a larger residual interaction---resulting story: \emph{``the model treats female education-loan applicants differently from what the main effects predict.''}
+A regulator would reach very different conclusions about sex-based discrimination depending on which result they are shown.
+
+\subsection{Broader Implications}
+
+The ability to produce different explanations from the same model undermines the trust that interpretability methods are designed to build, paralleling concerns raised by \citet{chang2021how} for GAM training algorithms.
+Our contribution is to show that even \emph{after} purification, a degree of freedom remains.
+
+We do not argue that purification should be abandoned---it provides a principled framework that resolves the worst forms of non-identifiability.
+Rather, we argue that:
+\begin{enumerate}
+    \item The weight specification should be treated as a \textbf{modeling choice} that must be justified and reported.
+    \item Regulatory frameworks should require disclosure of the weight specification used for any purification-based explanation.
+    \item Researchers should present results under multiple weight modes to demonstrate robustness.
+\end{enumerate}
+
+\section{Limitations}
+
+\begin{itemize}
+    \item \textbf{Depth-2 models only.} Deeper trees with higher-order interactions may exhibit different sensitivity patterns.
+    \item \textbf{Two-variable stress-test.} Higher dimensions may introduce additional phenomena (e.g., confounding through a third variable).
+    \item \textbf{Single real-world dataset.} Larger datasets with stronger dependence structures might amplify or dampen the observed effects.
+    \item \textbf{Linear-Gaussian dependence.} Non-linear dependence structures (e.g., copulas with tail dependence) might produce different sensitivity patterns.
+    \item \textbf{No ground-truth for the real-world experiment.} The stress-test addresses this partially, but only for synthetic data.
+\end{itemize}
+
+\section{Conclusion}
+
+This report has investigated the sensitivity of the functional ANOVA purification algorithm to the weighting distribution used to enforce the integrate-to-zero constraints.
+All differences arise while predictions remain perfectly invariant.
+This is a fundamental limitation of the fANOVA framework when features are dependent, not a bug in any implementation.
+
+\section{Outlook}
+
+\paragraph{Higher-order interactions.}
+Extending to higher-order interactions (depth $>2$ trees) would require tensor decompositions of order three or more, where weight sensitivity may be even more severe.
+
+\paragraph{Alternative weight estimation.}
+Kernel density estimators, copula-based weights, or learned density models could provide better approximations to the true data-generating distribution.
+
+\paragraph{Robustness certificates.}
+Reporting the range of purified effects across a family of plausible weight distributions would provide robustness certificates for interpretations.
+
+\paragraph{Beyond tree ensembles.}
+The purification framework applies to any additive model with interactions, including neural additive models \citep{agarwal2021neural} and spline-based GA2Ms.
+
+\paragraph{Regulatory standards.}
+Model documentation standards should include the weight specification used for any purification-based explanation, with guidelines for when weight sensitivity is likely to be a concern.
