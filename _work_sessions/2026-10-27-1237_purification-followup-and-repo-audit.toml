@@ -1,0 +1,26 @@
+title = "Follow-up research on the purification reproduction, plus an audit of the seminar code"
+date = "2026-10-27"
+time = "12:37"
+areas = ["src/ (read only)", "results/ (read only)", "local git-excluded research folder in the repo root"]
+
+done = [
+  "Onboarded on the reproduction of Lengerich et al. (AISTATS 2020): report, src/purify.py, src/xgb_decompose.py, experiments, results.",
+  "Ran a multi-day follow-up study in a local research folder that is listed in .git/info/exclude (unpublished work; not part of this repo). Its own notes, decisions and session logs live there.",
+  "Verified src/purify.py against a closed-form weighted least-squares purification (worst difference 2.4e-10 on 40 random cases).",
+  "Found the issues below in the seminar code while reusing it; nothing in src/ or the seminar files was changed.",
+]
+pending = [
+  "Fix src/binning.py discretize_matrix: it compares in float64, but XGBoost routes rows by float32(x) < float32(threshold). When a threshold equals a decimal data value whose float32 rounding goes up (21.7 -> 21.70000076), rows land in the wrong bin. Measured on the law-school data: decomposition error 0.385 on every row with float64 binning, 6e-6 with float32 binning. Integer-valued data (COMPAS, Adult, German Credit) are unaffected.",
+  "Fix src/xgb_decompose.py for xgboost >= 3: base_score is stored as '[4.6E0]', so float(...) raises. For binary:logistic the stored base_score is a probability, not a margin, so the intercept is off for classifiers (contrasts unaffected).",
+  "src/experiments/__init__.py and run_all_experiments.py import log_puzzle, which does not exist, so run_all_experiments.py fails on import.",
+  "src/ is not installable as purify_fanova (no pyproject.toml / setup.py); imports only work through an importlib shim.",
+  "requirements.txt pins numpy 1.24 / xgboost 2.0 while this machine runs numpy 2.2.6 / xgboost 3.1.3.",
+  "data/german_credit_data.csv has no good/bad label, so german_credit.py predicts the loan amount (RMSE 2043). The report's Sex x Purpose discrimination discussion is about a loan-amount regressor; the labelled OpenML credit-g (id 31) would fix that.",
+]
+next = [
+  "Decide what to do with the follow-up study (options recorded in the research folder's DECISIONS.md).",
+  "If the seminar code is reused: apply the fixes above first, starting with float32 binning.",
+]
+files = ["_work_sessions/2026-10-27-1237_purification-followup-and-repo-audit.toml"]
+commits = ["this commit: adds this session log only"]
+notes = "The research folder is deliberately kept out of git because this repo is public. Runtimes and the full record are in that folder."
